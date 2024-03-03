@@ -5,7 +5,10 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
+const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
+  captionsData: 'alt',
+  captionDelay: 500,
+});
 import makeMarkup from './js/render-functions';
 import getNewFotos from './js/pixabay-api';
 
@@ -23,6 +26,8 @@ export default function handler(event) {
   list.innerHTML = null;
 
   let query = event.target.elements.input.value.trim();
+
+  
   getNewFotos(query, 15, 1).then(data => {
     if (data.hits.length === 0) {
       list.innerHTML = '';
@@ -33,10 +38,7 @@ export default function handler(event) {
     loader.style.display = 'inline-block';
     makeMarkup(data.hits);
 
-    const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
-      captionsData: 'alt',
-      captionDelay: 500,
-    });
+   
     lightbox.refresh();
 
     currentQuery = query;

@@ -5,12 +5,16 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
+const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
+  captionsData: 'alt',
+  captionDelay: 500,
+});
 const input = document.querySelector('.input-text');
 
 const loadMoreBtn = document.querySelector('.load-btn');
 const list = document.querySelector('.todo-list');
 const loader = document.querySelector('.loading');
+
 import getNewFotos from './pixabay-api';
 
 export default function makeMarkup(images) {
@@ -76,10 +80,7 @@ export function loadImages(e) {
     makeMarkup(data.hits);
     loader.style.display = 'none';
 
-    const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
-      captionsData: 'alt',
-      captionDelay: 500,
-    });
+    
     lightbox.refresh();
 
     loader.style.display = 'none';
@@ -88,6 +89,7 @@ export function loadImages(e) {
     const rect = boxFotos.getBoundingClientRect();
     window.scrollBy(0, rect.height * 2);
   });
+ 
 }
 loadMoreBtn.addEventListener('click', loadImages);
 
