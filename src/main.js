@@ -19,40 +19,39 @@ const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
 });
 let currentQuery;
 
-export default function handler(event) {
+async function handler(event) {
   event.preventDefault();
-  
+
   list.innerHTML = null;
 
   let query = event.target.elements.input.value.trim();
 
-  getNewFotos(query, 15, 1).then(data => {
-   
+  try {
+    const data = await getNewFotos(query, 15, 1);
+
     if (data.hits.length === 0) {
       list.innerHTML = '';
       loader.style.display = 'none';
       loadMoreBtn.classList.add('is-hidden');
       return handlerError();
-    } else if(data.hits.length < 15 ) {
+    } else if (data.hits.length < 15) {
       makeMarkup(data.hits);
- 
       loader.style.display = 'none';
       loadMoreBtn.style.display = 'none';
-      lightbox.refresh()
-    
+      lightbox.refresh();
       return handlerErrorResult();
-    } 
+    }
 
-   
     loader.style.display = 'inline-block';
     makeMarkup(data.hits);
-
     lightbox.refresh();
-
     currentQuery = query;
     currentPage = 1;
     loader.style.display = 'none';
-  });
+  } catch (error) {
+    console.error(error);
+  }
+
   loadMoreBtn.classList.remove('is-hidden');
 }
 
@@ -61,32 +60,30 @@ searchForm.addEventListener('submit', handler);
 let currentPage = 1;
 
 function loadImages(e) {
-  e.preventDefault()
+  e.preventDefault();
   let currentQuery = input.value;
 
   list.insertAdjacentElement('afterend', loader);
   loader.style.display = 'inline-block';
   currentPage++;
+
   getNewFotos(currentQuery, 15, currentPage).then(data => {
-    if (data.hits.length < 15 ) {
+    if (data.hits.length < 15) {
       loader.style.display = 'none';
       loadMoreBtn.style.display = 'none';
       return handlerErrorResult();
+    } else {
+      makeMarkup(data.hits);
+      loader.style.display = 'none';
+      lightbox.refresh();
+      loader.style.display = 'none';
+      const boxFotos = document.querySelector('.photo-main-list');
+      const rect = boxFotos.getBoundingClientRect();
+      window.scrollBy(0, rect.height * 2);
     }
-    else {
-
-    makeMarkup(data.hits);
-    loader.style.display = 'none';
-
-    lightbox.refresh();
-
-    loader.style.display = 'none';
-
-    const boxFotos = document.querySelector('.photo-main-list');
-    const rect = boxFotos.getBoundingClientRect();
-    window.scrollBy(0, rect.height * 2);}
   });
 }
+
 loadMoreBtn.addEventListener('click', loadImages);
 
 function handlerError() {
