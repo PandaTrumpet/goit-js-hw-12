@@ -18,6 +18,7 @@ const lightbox = new SimpleLightbox('.todo-list a.galery-link', {
   captionDelay: 500,
 });
 let currentQuery;
+let currentPage = 1;
 
 async function handler(event) {
   event.preventDefault();
@@ -34,30 +35,26 @@ async function handler(event) {
       loader.style.display = 'none';
       loadMoreBtn.classList.add('is-hidden');
       return handlerError();
-    } else if (data.hits.length < 15) {
+    } else {
       makeMarkup(data.hits);
-      loader.style.display = 'none';
-      loadMoreBtn.style.display = 'none';
       lightbox.refresh();
-      return handlerErrorResult();
-    }
+      currentQuery = query;
+      currentPage = 1;
+      loader.style.display = 'none';
 
-    loader.style.display = 'inline-block';
-    makeMarkup(data.hits);
-    lightbox.refresh();
-    currentQuery = query;
-    currentPage = 1;
-    loader.style.display = 'none';
+      if (data.hits.length < 15) {
+        loadMoreBtn.style.display = 'none';
+        handlerErrorResult();
+      } else {
+        loadMoreBtn.style.display = 'block';
+      }
+    }
   } catch (error) {
     console.error(error);
   }
-
-  loadMoreBtn.classList.remove('is-hidden');
 }
 
 searchForm.addEventListener('submit', handler);
-
-let currentPage = 1;
 
 function loadImages(e) {
   e.preventDefault();
@@ -68,18 +65,23 @@ function loadImages(e) {
   currentPage++;
 
   getNewFotos(currentQuery, 15, currentPage).then(data => {
-    if (data.hits.length < 15) {
+    if (data.hits.length === 0) {
       loader.style.display = 'none';
       loadMoreBtn.style.display = 'none';
       return handlerErrorResult();
     } else {
       makeMarkup(data.hits);
-      loader.style.display = 'none';
       lightbox.refresh();
       loader.style.display = 'none';
       const boxFotos = document.querySelector('.photo-main-list');
       const rect = boxFotos.getBoundingClientRect();
       window.scrollBy(0, rect.height * 2);
+
+      if (data.hits.length < 15) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'block';
+      }
     }
   });
 }
